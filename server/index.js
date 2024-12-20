@@ -88,7 +88,50 @@ const server = http.createServer((req, res) => {
 
     });
   }
+  
+//new user creation
+if (req.url === '/newUser') {
+  let body = '';
+  req.on('data', (chunks) => {
+    body += chunks;
+  });
+  req.on('end', () => {
+    body = JSON.parse(body);
+    let newdirctory = body.newEmail.replaceAll('.', '_');
 
+    //create a folder in the name of user,
+    fs.mkdir(path.join(Rootpath, 'Database', newdirctory), (err) => {
+      if (err) {
+        res.writeHead(400);
+        res.end('Account already exist');
+      }
+    });
+
+    //store user credentials
+    fs.writeFile(
+      path.join(Rootpath, 'Database', newdirctory, 'user.json'),
+      JSON.stringify({
+        username: body.newUsername,
+        email: body.newEmail,
+        password: body.newPassword,
+      }),
+      (err) => {
+        if (err) {
+          console.err('failed');
+          res.writeHead(400);
+          res.end('User data failed to store retry');
+          fs.rmdir(path.join(Rootpath, 'Database', newdirctory));
+        } else {
+          res.writeHead(200);
+          res.end('Your Account created success fully');
+          console.log('Success!');
+        }
+      }
+    );
+  });
+
+  // res.end("account created");
+}
 });
 
 server.listen(Port, () => {

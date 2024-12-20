@@ -121,16 +121,29 @@ function newdiary() {
 //user login page
 function loginpage() {
   logined = false;
+  let loginclicked=false;
   localStorage.removeItem('Mydiary_usr_crdntls');
   appbody.innerHTML = `<div class="accbody">
   <div class="container" id="loginPage">
       <h2>Login</h2>
       <input type="text" id="useremail" placeholder="Enter email">
       <input type="password" id="password" placeholder="Password">
-      <button onclick="handleLogin()">Login</button>
+      <button id="logbtn">Login</button>
       <p class="message" id="loginMessage"></p>
     </div>
   </div>`;
+document.querySelector("#logbtn").addEventListener("click",()=>{
+  loginclicked=true;
+  handleLogin();
+});
+document.querySelector("#useremail").addEventListener("click",()=>{
+  if(loginclicked){
+    document.querySelector("#loginMessage").innerHTML="";
+    document.querySelector("#password").value='';
+    document.querySelector("#useremail").value="";
+    }
+});
+
 }
 
 //account creation page.
@@ -208,17 +221,44 @@ async function handleLogin() {
   }
 }
 
-function handleCreateAccount() {
+async function handleCreateAccount() {
+  const newEmail = document.getElementById('newEmail').value;
   const newUsername = document.getElementById('newUsername').value;
   const newPassword = document.getElementById('newPassword').value;
 
-  if (newUsername && newPassword) {
-    document.getElementById('createMessage').textContent =
-      'Account created successfully!';
-    document.getElementById('createMessage').style.color = 'green';
-    setTimeout(() => {
-      loginpage();
-    }, 1000);
+  //request to server
+  if (newUsername && newPassword && newEmail) {
+    try {
+      let response = await fetch('/newUser', {
+        method: 'POST',
+        body: JSON.stringify({
+          newUsername,
+          newPassword,
+          newEmail,
+        }),
+        header: {
+          'Content-Type': 'application/json',
+        },
+      });
+      response = await response.text();
+      //show server response.
+      document.getElementById('createMessage').textContent =
+        response;
+      document.getElementById('createMessage').style.color = 'green';
+      alert(response); 
+
+      setTimeout(() => {
+        loginpage();
+      }, 1000);
+    } catch (e) {
+      if (e.code === 'ENOTFOUND') {
+        alert('Server not found');
+      } else if (e.code === 'ECONNREFUSED') {
+        alert('connection refused, Please check your nerwork connection');
+      } else {
+        alert('An unknown error occured, Please try after some times');
+      }
+    }
   } else {
     document.getElementById('createMessage').textContent =
       'Please fill in all fields.';
