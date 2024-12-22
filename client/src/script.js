@@ -50,6 +50,7 @@ async function checklocalStorage() {
       //verify user
       if (response.user) {
         logined = true;
+        sessionStorage.setItem("user",data.userid);
         home();
       } else {
         loginpage();
@@ -122,6 +123,7 @@ function newdiary() {
 function loginpage() {
   logined = false;
   let loginclicked=false;
+  sessionStorage.removeItem("user");
   localStorage.removeItem('Mydiary_usr_crdntls');
   appbody.innerHTML = `<div class="accbody">
   <div class="container" id="loginPage">
@@ -176,6 +178,7 @@ async function handleLogin() {
     // verify user
     if (res.user) {
       logined = true;
+      sessionStorage.setItem("user",username);
       //ask to store credentials local.
       setTimeout(() => {
         if (confirm(`Welcome ${res.user}, Do you want to store password and email local?`)) {
