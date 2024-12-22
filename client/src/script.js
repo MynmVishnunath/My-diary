@@ -113,12 +113,41 @@ function newdiary() {
   let Dname = `${currentDate.getFullYear()}${currentDate.getMonth()}${currentDate.getDay()}_${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
   let upload = document.querySelector(".submitdiary");
 
+  //submit button clicked
   upload.addEventListener("click", () => {
-    alert("clicked");
+    //alert("clicked");
     submitdiary({ content: diaryTextarea.value, Date: formattedDate, Time: formattime, Dname })
   });
 }
 
+//submit action
+async function submitdiary(diaryData){
+  let username=sessionStorage.getItem("user");
+  try{
+  let response=await fetch("/submit",{
+   method:"POST",
+   body:JSON.stringify({
+     diaryData,
+     username
+   })
+  });
+  response=await response.json();
+  if(response.poststatus){
+    newdiary();
+  }
+  setTimeout(()=>{
+  alert(response.msg);},1000);
+  }catch(e){
+    alert(e);
+  if (e.code === 'ENOTFOUND') {
+       alert('Server not found');
+     } else if (e.code === 'ECONNREFUSED') {
+       alert('connection refused, Please check your nerwork connection');
+     } else {
+       alert('An unknown error occured, Please try after some times');
+     }
+   }
+ }
 //user login page
 function loginpage() {
   logined = false;

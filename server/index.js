@@ -132,6 +132,46 @@ if (req.url === '/newUser') {
 
   // res.end("account created");
 }
+
+if(req.url==="/submit"){
+  body='';
+  req.on('data',bits=>{body+=bits});
+  req.on('end',()=>{
+     let diaryData=JSON.parse(body);
+     let directory=diaryData.username;
+     directory=directory.replaceAll(".","_");
+     //creats file , where stores the content of diary,name for the file recieved from client side
+     fs.writeFile(path.join(Rootpath,"Database",directory,`${diaryData.diaryData.Dname}.txt`),diaryData.diaryData.content,err=>{
+       if(err){
+         res.writeHead(400,{'Content-Type':'application/json'});
+         res.end(JSON.stringify({poststatus:false,msg:"Submission failed, some error occured"}));
+       }else{
+         //diary list updation,Opens file where list of diaries stored
+         fs.readFile(path.join(Rootpath,"Database",directory,"diaries.json"),"utf8",(err,data)=>{
+           let diaryList=JSON.parse(data);//turn that into a object
+           let diarydetls={...diaryData.diaryData};
+           delete diarydetls.content;
+           diaryList.push(diarydetls);//update that list
+           if(err){
+             console.log(err);
+           }else{
+             //write back the updated list
+             fs.writeFile(path.join(Rootpath,"Database",directory,"diaries.json"),JSON.stringify(diaryList),err=>{
+               if(err)
+                 console.log(err);
+
+                 res.writeHead(200,{'Content-Type':'application/json'});
+                 res.end(JSON.stringify({poststatus:true,msg:"submission success"}));
+             });
+           }
+
+         })
+       }
+     })
+     
+  });
+  //end of submit
+}
 });
 
 server.listen(Port, () => {
