@@ -104,6 +104,7 @@ if (req.url === '/newUser') {
       if (err) {
         res.writeHead(400);
         res.end('Account already exist');
+        
       }
     });
 
@@ -128,6 +129,12 @@ if (req.url === '/newUser') {
         }
       }
     );
+
+    fs.writeFile(path.join(Rootpath,"Database",newdirctory,"diaries.json"),JSON.stringify([]),(err)=>{
+      if(err){
+        console.log(err);
+      }
+    })
   });
 
   // res.end("account created");
