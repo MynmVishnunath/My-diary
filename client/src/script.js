@@ -297,19 +297,51 @@ async function handleCreateAccount() {
   }
 }
 
-function diarylisting() {
+//function that trigger when user click my diaries
+async function diarylisting() {
   appbody.innerHTML = `<div class="diarylist-container">
       <h2>Diary list</h2>
       <ul id="diaryList"></ul>
       </div>`;
   const diaryList = document.getElementById('diaryList');
+  let diaries=await getDiaries()??[];
+  if(diaries[0]){
 
-  diaries.forEach((diary) => {
-    const listItem = document.createElement('li');
-    listItem.innerHTML = `
-      <span class="name">${diary.date}</span>
-      <span class="phone">${diary.time}</span>
+    diaries.forEach((diary) => {
+      const listItem = document.createElement('li');
+      listItem.innerHTML = `
+      <span class="name">${diary.Date}</span>
+      <span class="phone">${diary.Time}</span>
       `;
-    diaryList.appendChild(listItem);
+      diaryList.appendChild(listItem);
+    });
+  }else{
+    document.querySelector(".diarylist-container").innerHTML='<p>No diaries yet</p>';
+  }
+}
+
+//request  to server to get diaries of user
+async function getDiaries() {
+try {
+  let response=await fetch("/mydiareis",{
+    method:"POST",
+    headers:{
+      'Content-Type':'application/json'
+    },
+    body:JSON.stringify({user:(sessionStorage.getItem("user"))}),
   });
+  response=await response.json();
+  console.log(response);
+  return response; 
+} catch (error) {
+  console.log(error);
+  if (error.code === 'ENOTFOUND') {
+    alert('Server not found');
+  } else if (error.code === 'ECONNREFUSED') {
+    alert('connection refused, Please check your nerwork connection');
+  } else {
+    alert('An unknown error occured, Please try after some times');
+  }
+
+}
 }

@@ -179,6 +179,28 @@ if(req.url==="/submit"){
   });
   //end of submit
 }
+
+if(req.url==="/mydiareis"){
+  let body='';
+  req.on('data',(bits)=>{
+    body+=bits;
+  });
+  req.on("end",()=>{
+    body=JSON.parse(body);
+    let directory=body.user.replaceAll(".","_");
+    let file=path.join(Rootpath,"Database",directory,"diaries.json");
+    fs.readFile(file,"utf8",(err,data)=>{
+      if(err){
+        res.writeHead(400,{'Content-Type':'application/json'});
+        res.end(JSON.stringify({msg:"cant find any files"}));
+      }else{
+        res.writeHead(200,{"Content-Type":"application/json"});
+        res.end(data);
+      }
+    })
+  })
+  //end of mydiaries
+}
 });
 
 server.listen(Port, () => {
