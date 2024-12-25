@@ -313,7 +313,8 @@ async function diarylisting() {
       <span class="name">${diary.Date}</span>
       <span class="phone">${diary.Time}</span>
       `;
-      diaryList.appendChild(listItem);
+      listItem.setAttribute("onclick",`getDiaryContent("${diary.Dname}")`);
+      diaryList.prepend(listItem);
     });
   }else{
     document.querySelector(".diarylist-container").innerHTML='<p>No diaries yet</p>';
@@ -332,6 +333,7 @@ try {
   });
   response=await response.json();
   console.log(response);
+  
   return response; 
 } catch (error) {
   console.log(error);
@@ -344,4 +346,28 @@ try {
   }
 
 }
+}
+
+async function getDiaryContent(Dname){
+  alert(Dname);
+  let response=await fetch("/diarycontent",{
+    method:"POST",
+    body:JSON.stringify({user:sessionStorage.getItem("user"),Dname}),
+    headers:{
+      'Content-Type':'application/json'
+    }
+  });
+  response=await response.json();
+  if(response.readStatus){
+  showContent(response.content);
+  }else{
+    alert("Couldn't read diary");
+  }
+}
+
+function showContent(content){
+  appbody.innerHTML = `<div class="newdiarypage" >
+  <textarea id="diary"></textarea>
+  </div>`;
+  document.querySelector("#diary").value=content;
 }

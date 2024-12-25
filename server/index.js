@@ -157,6 +157,7 @@ if(req.url==="/submit"){
          fs.readFile(path.join(Rootpath,"Database",directory,"diaries.json"),"utf8",(err,data)=>{
            let diaryList=JSON.parse(data);//turn that into a object
            let diarydetls={...diaryData.diaryData};
+           diarydetls.Dname=diarydetls.Dname+".txt";
            delete diarydetls.content;
            diaryList.push(diarydetls);//update that list
            if(err){
@@ -200,6 +201,33 @@ if(req.url==="/mydiareis"){
     })
   })
   //end of mydiaries
+}
+if(req.url==="/diarycontent"){
+ let body='';
+ req.on('data',chnks=>{
+  body+=chnks;
+ });
+ req.on('end',()=>{
+  body=JSON.parse(body);
+  let directory=body.user.replaceAll(".","_");
+  console.log(directory);
+  let file=body.Dname;
+  try{
+    fs.readFile(path.join(Rootpath,"Database",directory,file),"utf8",(err,data)=>{
+      if(err){
+        console.log(err);
+        //throw new Error("failed to read");
+      }else{
+        res.writeHead(200,{'content-type':'application/json'});
+        res.end(JSON.stringify({readStatus:true,content:data}));
+      }
+
+    });
+  }catch(e){
+    res.writeHead(400,{'content-type':'application/json'});
+    res.end(JSON.stringify({readStatus:false}));
+  }
+ })
 }
 });
 
