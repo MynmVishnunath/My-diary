@@ -231,11 +231,7 @@ async function handleLogin() {
           attempt = 0;
           newuserpage();
         } else {
-          //clear inputs
-          document.getElementById('useremail').value = "";
-          document.getElementById('password').value = "";
-          // clear error message
-          document.getElementById('loginMessage').textContent = "";
+          
         }
       }, 500)
 
