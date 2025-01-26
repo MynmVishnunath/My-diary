@@ -65,7 +65,7 @@ const server = http.createServer((req, res) => {
       user = body.username;
       pass = body.password;
       user = user.replaceAll('.', '_');
-      fs.readFile(path.join(Rootpath, 'Database', user, "user.json"), 'utf8', (err, data) => {
+      fs.readFile(path.join('/tmp', user, "user.json"), 'utf8', (err, data) => {
         if (err) {
           console.log("user not found");
           res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -100,7 +100,7 @@ if (req.url === '/newUser') {
     let newdirctory = body.newEmail.replaceAll('.', '_');
 
     //create a folder in the name of user,
-    fs.mkdir(path.join(Rootpath, 'Database', newdirctory), (err) => {
+    fs.mkdir(path.join('/tmp', newdirctory), (err) => {
       if (err) {
         res.writeHead(400);
         res.end('Account already exist');
@@ -110,7 +110,7 @@ if (req.url === '/newUser') {
 
     //store user credentials
     fs.writeFile(
-      path.join(Rootpath, 'Database', newdirctory, 'user.json'),
+      path.join('/tmp', newdirctory, 'user.json'),
       JSON.stringify({
         username: body.newUsername,
         email: body.newEmail,
@@ -130,7 +130,7 @@ if (req.url === '/newUser') {
       }
     );
 
-    fs.writeFile(path.join(Rootpath,"Database",newdirctory,"diaries.json"),JSON.stringify([]),(err)=>{
+    fs.writeFile(path.join("/tmp",newdirctory,"diaries.json"),JSON.stringify([]),(err)=>{
       if(err){
         console.log(err);
       }
@@ -148,13 +148,13 @@ if(req.url==="/submit"){
      let directory=diaryData.username;
      directory=directory.replaceAll(".","_");
      //creats file , where stores the content of diary,name for the file recieved from client side
-     fs.writeFile(path.join(Rootpath,"Database",directory,`${diaryData.diaryData.Dname}.txt`),diaryData.diaryData.content,err=>{
+     fs.writeFile(path.join("/tmp",directory,`${diaryData.diaryData.Dname}.txt`),diaryData.diaryData.content,err=>{
        if(err){
          res.writeHead(400,{'Content-Type':'application/json'});
          res.end(JSON.stringify({poststatus:false,msg:"Submission failed, some error occured"}));
        }else{
          //diary list updation,Opens file where list of diaries stored
-         fs.readFile(path.join(Rootpath,"Database",directory,"diaries.json"),"utf8",(err,data)=>{
+         fs.readFile(path.join("/tmp",directory,"diaries.json"),"utf8",(err,data)=>{
            let diaryList=JSON.parse(data);//turn that into a object
            let diarydetls={...diaryData.diaryData};
            diarydetls.Dname=diarydetls.Dname+".txt";
@@ -164,7 +164,7 @@ if(req.url==="/submit"){
              console.log(err);
            }else{
              //write back the updated list
-             fs.writeFile(path.join(Rootpath,"Database",directory,"diaries.json"),JSON.stringify(diaryList),err=>{
+             fs.writeFile(path.join("/tmp",directory,"diaries.json"),JSON.stringify(diaryList),err=>{
                if(err)
                  console.log(err);
 
@@ -189,7 +189,7 @@ if(req.url==="/mydiareis"){
   req.on("end",()=>{
     body=JSON.parse(body);
     let directory=body.user.replaceAll(".","_");
-    let file=path.join(Rootpath,"Database",directory,"diaries.json");
+    let file=path.join("/tmp",directory,"diaries.json");
     fs.readFile(file,"utf8",(err,data)=>{
       if(err){
         res.writeHead(400,{'Content-Type':'application/json'});
@@ -213,7 +213,7 @@ if(req.url==="/diarycontent"){
   console.log(directory);
   let file=body.Dname;
   try{
-    fs.readFile(path.join(Rootpath,"Database",directory,file),"utf8",(err,data)=>{
+    fs.readFile(path.join("/tmp",directory,file),"utf8",(err,data)=>{
       if(err){
         console.log(err);
         //throw new Error("failed to read");
